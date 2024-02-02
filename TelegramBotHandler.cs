@@ -121,7 +121,7 @@ namespace FastFoodOnlineBot
 
                     await botClient.SendTextMessageAsync(
                     chatId: chatId,
-                    text: "Congratulations!\nYou can start your order from now...");
+                    text: "Hi, admin!\nWhat you want to change here?");
                 }
 
                 else
