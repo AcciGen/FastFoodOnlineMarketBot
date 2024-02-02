@@ -20,12 +20,13 @@ namespace FastFoodOnlineBot
         public string Token { get; set; }
         string accountSid = "AC7bcc36021b3503cdd0f2e0cd579a3904";
         string authToken = "afb47832338a2e4306c8612861de1917";
-        string admin = "+99890024613";
+        string admin = "+998900246136";
         string user;
         bool contact = false;
         bool receivedSms = false;
         bool adminPanel = false;
         bool userPanel = false;
+        bool productPage = false;
 
         public TelegramBotHandler(string token)
         {
@@ -120,6 +121,15 @@ namespace FastFoodOnlineBot
                 return;
             }
 
+            else if (!contact)
+            {
+                await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    text: "Please send your phone number!");
+
+                return;
+            }
+
             else if (contact && message.Text == "777")
             {
                 receivedSms = true;
@@ -130,7 +140,7 @@ namespace FastFoodOnlineBot
 
                     ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
                     {
-                        new KeyboardButton[] { "Category", "Product", "Pay Type", "All Orders" },
+                        new KeyboardButton[] { "Category", "Product", "PayType", "All Orders" },
                         ["Order Status", "Change Order Status", "All Users"],
                     })
                     {
@@ -140,7 +150,7 @@ namespace FastFoodOnlineBot
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
                         cancellationToken: cancellationToken,
-                        text: "Hi, admin!\nWhat you want to change here?",
+                        text: "Hi, admin!\nWhat do you want to do here?",
                         replyMarkup: replyKeyboardMarkup);
                 }
 
@@ -160,8 +170,70 @@ namespace FastFoodOnlineBot
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
                         cancellationToken: cancellationToken,
-                        text: "Congratulations!\nYou can start your order from now...",
+                        text: "Congratulations!\nYou can start your order now...",
                         replyMarkup: replyKeyboardMarkup);
+                }
+
+                return;
+            }
+
+            else if (contact && adminPanel)
+            {
+                switch(message.Text)
+                {
+                    case "Category":
+                        ReplyKeyboardMarkup categoryKeyboard = new(new[]
+                        {
+                            new KeyboardButton[] { "Add", "Read" },
+                            [ "Update", "Delete" ],
+                        })
+                        {
+                            ResizeKeyboard = true
+                        };
+
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            cancellationToken: cancellationToken,
+                            text: "Sure",
+                            replyMarkup: categoryKeyboard);
+                        
+                        break;
+
+                    case "Product":
+                        ReplyKeyboardMarkup productKeyboard = new(new[]
+                        {
+                            new KeyboardButton[] { "Add", "Read" },
+                            [ "Update", "Delete" ],
+                        })
+                        {
+                            ResizeKeyboard = true
+                        };
+
+                        await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        cancellationToken: cancellationToken,
+                        text: "Sure",
+                        replyMarkup: productKeyboard);
+
+                        break;
+
+                    case "PayType":
+                        ReplyKeyboardMarkup paytypeKeyboard = new(new[]
+                        {
+                            new KeyboardButton[] { "Add", "Read" },
+                            [ "Update", "Delete" ],
+                        })
+                        {
+                            ResizeKeyboard = true
+                        };
+
+                        await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        cancellationToken: cancellationToken,
+                        text: "Sure",
+                        replyMarkup: paytypeKeyboard);
+
+                        break;
                 }
 
                 return;
@@ -169,179 +241,26 @@ namespace FastFoodOnlineBot
 
             else if (message.Text == "Products")
             {
-                var inlineKeyboard = new InlineKeyboardMarkup(
-                    new List<InlineKeyboardButton[]>()
+                productPage = true;
+
+                ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
                     {
-                        new InlineKeyboardButton[]
-                        {
-                            InlineKeyboardButton.WithCallbackData("Sandwich", "Sandwich"),
-                            InlineKeyboardButton.WithCallbackData("Taco", "Taco"),
-                            InlineKeyboardButton.WithCallbackData("Hot Dog", "Hot Dog"),
-                            InlineKeyboardButton.WithCallbackData("Fries", "Fries"),
-                        },
-
-                        new InlineKeyboardButton[]
-                        {
-                            InlineKeyboardButton.WithCallbackData("Cheeseburger", "Cheeseburger"),
-                            InlineKeyboardButton.WithCallbackData("Pizza", "Pizza"),
-                            InlineKeyboardButton.WithCallbackData("Chicken", "Chicken"),
-                            InlineKeyboardButton.WithCallbackData("Ice Cream", "Ice Cream"),
-                        },
-
-                        new InlineKeyboardButton[]
-                        {
-                            InlineKeyboardButton.WithCallbackData("Coke", "Coke"),
-                            InlineKeyboardButton.WithCallbackData("Juice", "Juice"),
-                            InlineKeyboardButton.WithCallbackData("Coffee", "Coffee"),
-                            InlineKeyboardButton.WithCallbackData("Tea", "Tea"),
-                        },
-                    });
+                        new KeyboardButton[] { "Sandwich", "Taco", "Hot Dog", "Fries" },
+                        ["Cheeseburger", "Pizza", "Chicken", "Ice Cream"],
+                        [ "Coke", "Juice", "Coffee", "<-Back" ]
+                    })
+                {
+                    ResizeKeyboard = true
+                };
 
                 await botClient.SendTextMessageAsync(
                     chatId: chatId,
                     cancellationToken: cancellationToken,
-                    text: "Choose the products you want...",
-                    replyMarkup: inlineKeyboard);
-
+                    text: "Choose the products you want to buy...",
+                    replyMarkup: replyKeyboardMarkup);
             }
 
-
-            else if (update.CallbackQuery != null)
-            {
-                var callbackQuery = update.CallbackQuery;
-
-                var user = callbackQuery.From;
-
-                var chat = callbackQuery.Message!.Chat;
-
-                switch (callbackQuery.Data)
-                {
-                    case "Sandwich":
-                        {
-                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Added to your basket");
-
-                            await botClient.SendTextMessageAsync(
-                                chat.Id,
-                                text: $"{callbackQuery.Data} added to your basket");
-                            return;
-                        }
-
-                    case "Taco":
-                        {
-                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Added to your basket");
-
-                            await botClient.SendTextMessageAsync(
-                                chat.Id,
-                                text: $"{callbackQuery.Data} added to your basket");
-                            return;
-                        }
-
-                    case "Hot Dog":
-                        {
-                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Added to your basket");
-
-                            await botClient.SendTextMessageAsync(
-                                chat.Id,
-                                text: $"{callbackQuery.Data} added to your basket");
-                            return;
-                        }
-
-                    case "Fries":
-                        {
-                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Added to your basket");
-
-                            await botClient.SendTextMessageAsync(
-                                chat.Id,
-                                text: $"{callbackQuery.Data} added to your basket");
-                            return;
-                        }
-
-                    case "Cheeseburger":
-                        {
-                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Added to your basket");
-
-                            await botClient.SendTextMessageAsync(
-                                chat.Id,
-                                text: $"{callbackQuery.Data} added to your basket");
-                            return;
-                        }
-
-                    case "Pizza":
-                        {
-                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Added to your basket");
-
-                            await botClient.SendTextMessageAsync(
-                                chat.Id,
-                                text: $"{callbackQuery.Data} added to your basket");
-                            return;
-                        }
-
-                    case "Chicken":
-                        {
-                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Added to your basket");
-
-                            await botClient.SendTextMessageAsync(
-                                chat.Id,
-                                text: $"{callbackQuery.Data} added to your basket");
-                            return;
-                        }
-
-                    case "Ice Cream":
-                        {
-                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Added to your basket");
-
-                            await botClient.SendTextMessageAsync(
-                                chat.Id,
-                                text: $"{callbackQuery.Data} added to your basket");
-                            return;
-                        }
-
-                    case "Coke":
-                        {
-                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Added to your basket");
-
-                            await botClient.SendTextMessageAsync(
-                                chat.Id,
-                                text: $"{callbackQuery.Data} added to your basket");
-                            return;
-                        }
-
-                    case "Juice":
-                        {
-                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Added to your basket");
-
-                            await botClient.SendTextMessageAsync(
-                                chat.Id,
-                                text: $"{callbackQuery.Data} added to your basket");
-                            return;
-                        }
-
-                    case "Coffee":
-                        {
-                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Added to your basket");
-
-                            await botClient.SendTextMessageAsync(
-                                chat.Id,
-                                text: $"{callbackQuery.Data} added to your basket");
-                            return;
-                        }
-
-                    case "Tea":
-                        {
-                            await botClient.AnswerCallbackQueryAsync(callbackQuery.Id, "Added to your basket");
-
-                            await botClient.SendTextMessageAsync(
-                                chat.Id,
-                                text: $"{callbackQuery.Data} added to your basket");
-                            return;
-                        }
-
-                }
-
-                return;
-            }
-
-
+            
         }
 
         public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
