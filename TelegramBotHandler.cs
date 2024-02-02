@@ -9,6 +9,9 @@ using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using Twilio;
+using Twilio.Rest.Api.V2010.Account;
+using Twilio.Types;
 
 namespace FastFoodOnlineBot
 {
@@ -16,9 +19,19 @@ namespace FastFoodOnlineBot
     {
         public string Token { get; set; }
         public bool Subscription = false;
+        string accountSid = "AC7bcc36021b3503cdd0f2e0cd579a3904";
+        string authToken = "afb47832338a2e4306c8612861de1917";
+        string admin = "+998900246136";
+        string user;
+        bool contact = false;
+        bool receivedSms = false;
+        bool adminPanel = false;
+        bool userPanel = false;
+
         public TelegramBotHandler(string token)
         {
             Token = token;
+            TwilioClient.Init(accountSid, authToken);
         }
 
         public async Task BotHandle()
@@ -55,71 +68,74 @@ namespace FastFoodOnlineBot
             if (update.Message is not { } message)
                 return;
 
-            string replaceMessage = message.Text!.Replace("www.", "dd");
+            long chatId = message.Chat.Id;
 
             if (message.Text == "/start")
             {
-                ChatMember membership = await botClient.GetChatMemberAsync("@Ieltszoneuzswluchat", userId: message.Chat.Id);
+                contact = false;
 
-                if (membership != null && membership.Status != ChatMemberStatus.Member && membership.Status != ChatMemberStatus.Administrator && membership.Status != ChatMemberStatus.Creator)
+                var replyKeyboard = new ReplyKeyboardMarkup(
+                      new List<KeyboardButton[]>()
+                       {
+                        new KeyboardButton[]
+                        {
+                            KeyboardButton.WithRequestContact("Send Phone Number"),
+                        }
+                       })
                 {
-                    await ForceUserToSubscribe();
+                    ResizeKeyboard = true
+                };
+
+                await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    text: "Welcome to Online Fast Food Market Bot!🌮\nPlease share your contact number!",
+                    replyMarkup: replyKeyboard);
+
+                return;
+            }
+
+            else if (message.Type == MessageType.Contact && contact != true)
+            {
+                contact = true;
+                user = message.Contact!.PhoneNumber;
+
+                //var smsOptions = new CreateMessageOptions(
+                //  new PhoneNumber(user));
+                //smsOptions.From = new PhoneNumber("+12512201568");
+                //smsOptions.Body = "777";
+
+                //var sms = MessageResource.Create(smsOptions);
+                //Console.WriteLine(sms.Body);
+                await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    text: "Please enter the code which was sent to you...");
+            }
+
+            else if (contact && message.Text == "777")
+            {
+                receivedSms = true;
+
+                if (user == admin)
+                {
+                    adminPanel = true;
+
+                    await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    text: "Congratulations!\nYou can start your order from now...");
                 }
 
                 else
                 {
-                    Subscription = true;
+                    userPanel = true;
+
                     await botClient.SendTextMessageAsync(
-                        chatId: message.Chat.Id,
-                        text: "Welcome to InstaSaverBot!🎯\nSend me your Instagram link...🔗⛓️",
-                        cancellationToken: cancellationToken);
+                        chatId: chatId,
+                        text: "Congratulations!\nYou can start your order from now...");
                 }
             }
 
-            else if (message.Text.StartsWith("https://www.instagram.com"))
-            {
-                if (Subscription == true)
-                {
-                    try
-                    {
-                        await botClient.SendVideoAsync(
-                           chatId: message.Chat.Id,
-                           video: $"{replaceMessage}",
-                           supportsStreaming: true,
-                           cancellationToken: cancellationToken);
-                    }
-                    catch (Exception) { }
-
-                    try
-                    {
-                        await botClient.SendPhotoAsync(
-                               chatId: message.Chat.Id,
-                               photo: $"{replaceMessage}",
-                               cancellationToken: cancellationToken);
-                    }
-                    catch (Exception) { }
-                }
-                return;
-            }
 
 
-            async Task ForceUserToSubscribe()
-            {
-                InlineKeyboardMarkup inlineKeyboard = new(new[]
-                      {
-                        new []
-                        {
-                            InlineKeyboardButton.WithUrl(text: "Channel", url: "https://t.me/Ieltszoneuzswluchat"),
-                        },
-                      }
-                );
-
-                await botClient.SendTextMessageAsync(
-                chatId: message!.Chat.Id,
-                text: "Welcome to InstaSaverBot!🎯\nBefore of all!\nPlease subscribe to the following channel and press /start to start again...",
-                replyMarkup: inlineKeyboard,
-                cancellationToken: cancellationToken);
-            }
         }
 
         public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
