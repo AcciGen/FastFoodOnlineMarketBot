@@ -18,7 +18,6 @@ namespace FastFoodOnlineBot
     public class TelegramBotHandler
     {
         public string Token { get; set; }
-        public bool Subscription = false;
         string accountSid = "AC7bcc36021b3503cdd0f2e0cd579a3904";
         string authToken = "afb47832338a2e4306c8612861de1917";
         string admin = "+998900246136";
@@ -72,7 +71,15 @@ namespace FastFoodOnlineBot
 
             if (message.Text == "/start")
             {
-                contact = false;
+                if (contact == true)
+                {
+                    user = "";
+                    contact = false;
+                    receivedSms = false;
+                    adminPanel = false;
+                    userPanel = false;
+                    return;
+                }
 
                 var replyKeyboard = new ReplyKeyboardMarkup(
                       new List<KeyboardButton[]>()
@@ -109,6 +116,8 @@ namespace FastFoodOnlineBot
                 await botClient.SendTextMessageAsync(
                     chatId: chatId,
                     text: "Please enter the code which was sent to you...");
+
+                return;
             }
 
             else if (contact && message.Text == "777")
@@ -119,19 +128,82 @@ namespace FastFoodOnlineBot
                 {
                     adminPanel = true;
 
+                    ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
+                    {
+                        new KeyboardButton[] { "Category", "Product", "Pay Type" },
+                        ["Order Status", "Change Order Status", "All Orders", "All Users"],
+                    })
+                    {
+                        ResizeKeyboard = true
+                    };
+
                     await botClient.SendTextMessageAsync(
-                    chatId: chatId,
-                    text: "Hi, admin!\nWhat you want to change here?");
+                        chatId: chatId,
+                        cancellationToken: cancellationToken,
+                        text: "Hi, admin!\nWhat you want to change here?",
+                        replyMarkup: replyKeyboardMarkup);
                 }
 
                 else
                 {
                     userPanel = true;
 
+                    ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
+                    {
+                        new KeyboardButton[] { "Products", "Basket 3x" },
+                        [ "All Orders", "Deliver" ],
+                    })
+                    {
+                        ResizeKeyboard = true
+                    };
+
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "Congratulations!\nYou can start your order from now...");
+                        cancellationToken: cancellationToken,
+                        text: "Congratulations!\nYou can start your order from now...",
+                        replyMarkup: replyKeyboardMarkup);
                 }
+
+                return;
+            }
+
+            else if (message.Text == "Products")
+            {
+                var inlineKeyboard = new InlineKeyboardMarkup(
+                    new List<InlineKeyboardButton[]>()
+                    {
+                        new InlineKeyboardButton[]
+                        {
+                            InlineKeyboardButton.WithCallbackData("Sandwich", "Sandwich"),
+                            InlineKeyboardButton.WithCallbackData("Taco", "Taco"),
+                            InlineKeyboardButton.WithCallbackData("Hot Dog", "Hot Dog"),
+                            InlineKeyboardButton.WithCallbackData("Fries", "Fries"),
+                        },
+
+                        new InlineKeyboardButton[]
+                        {
+                            InlineKeyboardButton.WithCallbackData("Cheeseburger", "Cheeseburger"),
+                            InlineKeyboardButton.WithCallbackData("Pizza", "Pizza"),
+                            InlineKeyboardButton.WithCallbackData("Chicken", "Chicken"),
+                            InlineKeyboardButton.WithCallbackData("Ice Cream", "Ice Cream"),
+                        },
+
+                        new InlineKeyboardButton[]
+                        {
+                            InlineKeyboardButton.WithCallbackData("Coke", "Coke"),
+                            InlineKeyboardButton.WithCallbackData("Juice", "Juice"),
+                            InlineKeyboardButton.WithCallbackData("Coffee", "Coffee"),
+                            InlineKeyboardButton.WithCallbackData("Tea", "Tea"),
+                        }
+                    });
+
+                await botClient.SendTextMessageAsync(
+                    chatId: chatId,
+                    cancellationToken: cancellationToken,
+                    text: "Choose the products you want...",
+                    replyMarkup: inlineKeyboard);
+
+                return;
             }
 
 
