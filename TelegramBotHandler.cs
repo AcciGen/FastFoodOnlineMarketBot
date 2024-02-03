@@ -204,9 +204,12 @@ namespace FastFoodOnlineBot
                         break;
 
                     case "PA":
+                        string[] parts = message.Text!.Split(' ');
+
                         Products.Create(new Products()
                         {
-                            productName = message.Text!
+                            productName = parts[0],
+                            price = int.Parse(parts[1])
                         });
 
                         crud = "P";
@@ -270,7 +273,7 @@ namespace FastFoodOnlineBot
                             oldName = message.Text!;
                             await botClient.SendTextMessageAsync(
                                 chatId: chatId,
-                                text: "Now enter the new name...");
+                                text: "Now enter the new name and price of the product...");
 
                             break;
                         }
@@ -432,7 +435,7 @@ namespace FastFoodOnlineBot
 
                                 await botClient.SendTextMessageAsync(
                                     chatId: chatId,
-                                    text: "Enter new Product...");
+                                    text: "Enter new Product with price...\nExample: Fries 14000");
 
                                 break;
 

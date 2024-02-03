@@ -9,6 +9,7 @@ namespace FastFoodOnlineBot
     public class Products
     {
         public string productName { get; set; }
+        public int price { get; set; }
 
         private static readonly string path = "C:\\AdminFolder\\Products.json";
 
@@ -35,7 +36,7 @@ namespace FastFoodOnlineBot
                 List<Products> products = Serializer<Products>.GetAll(path);
                 foreach (Products p in products)
                 {
-                    stringBuilder.Append($"Product: {p.productName}\n");
+                    stringBuilder.Append($"Product: {p.productName}\nPrice: {p.price}\n");
                 }
                 return stringBuilder.ToString();
             }
@@ -45,7 +46,7 @@ namespace FastFoodOnlineBot
             }
         }
 
-        public static void Update(string oldName, string newName)
+        public static void Update(string oldName, string newProduct)
         {
             try
             {
@@ -56,7 +57,10 @@ namespace FastFoodOnlineBot
 
                     if (index != -1)
                     {
-                        products[index].productName = newName;
+                        string[] parts = newProduct.Split(' ');
+
+                        products[index].productName = parts[0];
+                        products[index].price = int.Parse(parts[1]);
                         Serializer<Products>.Save(products, path);
                     }
                 }
