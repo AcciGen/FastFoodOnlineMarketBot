@@ -185,6 +185,7 @@ namespace FastFoodOnlineBot
             }
             #endregion
 
+            #region //Admin Panel
             else if (contact && adminPanel)
             {
                 switch (crud)
@@ -545,7 +546,9 @@ namespace FastFoodOnlineBot
 
                 return;
             }
+#endregion
 
+            #region //User Panel
             else if (contact && userPanel)
             {
                 switch (message.Text)
@@ -572,6 +575,7 @@ namespace FastFoodOnlineBot
 
                 return;
             }
+            #endregion
         }
 
         public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
