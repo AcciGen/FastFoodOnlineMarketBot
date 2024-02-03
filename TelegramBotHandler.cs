@@ -25,6 +25,7 @@ namespace FastFoodOnlineBot
 
         string crud = "";
         string oldName = "";
+        string oldType = "";
         short count = 0;
 
         bool contact = false;
@@ -220,9 +221,9 @@ namespace FastFoodOnlineBot
                         break;
 
                     case "PtA":
-                        Categories.Create(new Categories()
+                        PayTypes.Create(new PayTypes()
                         {
-                            categoryName = message.Text!
+                            type = message.Text!
                         });
 
                         crud = "Pt";
@@ -252,7 +253,7 @@ namespace FastFoodOnlineBot
                             oldName = message.Text!;
                             await botClient.SendTextMessageAsync(
                                 chatId: chatId,
-                                text: "Now enter the new name...");
+                                text: "Now enter new name...");
 
                             break;
                         }
@@ -273,7 +274,7 @@ namespace FastFoodOnlineBot
                             oldName = message.Text!;
                             await botClient.SendTextMessageAsync(
                                 chatId: chatId,
-                                text: "Now enter the new name and price of the product...");
+                                text: "Now enter new name and price...");
 
                             break;
                         }
@@ -281,6 +282,27 @@ namespace FastFoodOnlineBot
                         crud = "P";
 
                         Products.Update(oldName, message.Text!);
+
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Updated successfully!");
+
+                        break;
+
+                    case "PtU":
+                        if (++count == 1)
+                        {
+                            oldType = message.Text!;
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Now enter new type...");
+
+                            break;
+                        }
+                        count = 0;
+                        crud = "Pt";
+
+                        PayTypes.Update(oldType, message.Text!);
 
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
@@ -304,6 +326,17 @@ namespace FastFoodOnlineBot
                         crud = "P";
 
                         Products.Delete(message.Text!);
+
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Deleted successfully!");
+
+                        break;
+
+                    case "PtD":
+                        crud = "Pt";
+
+                        PayTypes.Delete(message.Text!);
 
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
@@ -477,12 +510,12 @@ namespace FastFoodOnlineBot
 
                                 break;
 
-                                //case "Pt":
-                                //    await botClient.SendTextMessageAsync(
-                                //        chatId: chatId,
-                                //        text: $">>PayTypes List<<\n{PayTypes.Read()}");
+                            case "Pt":
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: $">>PayTypes List<<\n{PayTypes.Read()}");
 
-                                //    break;
+                                break;
 
                                 //case "O":
                                 //    await botClient.SendTextMessageAsync(
@@ -520,7 +553,7 @@ namespace FastFoodOnlineBot
 
                                 await botClient.SendTextMessageAsync(
                                     chatId: chatId,
-                                    text: "Enter the old PayType name...");
+                                    text: "Enter the old PayType...");
 
                                 break;
 
@@ -562,7 +595,7 @@ namespace FastFoodOnlineBot
 
                                 await botClient.SendTextMessageAsync(
                                     chatId: chatId,
-                                    text: "Enter PayType name to delete...");
+                                    text: "Enter PayType to delete...");
 
                                 break;
 
