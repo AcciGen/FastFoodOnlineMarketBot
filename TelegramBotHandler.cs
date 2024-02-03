@@ -181,6 +181,24 @@ namespace FastFoodOnlineBot
             {
                 switch(message.Text)
                 {
+                    case "Panel":
+                        ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
+                        {
+                            new KeyboardButton[] { "Category", "Product", "PayType", "All Orders" },
+                            ["Order Status", "Change Order Status", "All Users"],
+                        })
+                        {
+                            ResizeKeyboard = true
+                        };
+
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            cancellationToken: cancellationToken,
+                            text: "Sure",
+                            replyMarkup: categoryKeyboard);
+
+                        break;
+
                     case "Category":
                         ReplyKeyboardMarkup categoryKeyboard = new(new[]
                         {
@@ -203,7 +221,7 @@ namespace FastFoodOnlineBot
                         ReplyKeyboardMarkup productKeyboard = new(new[]
                         {
                             new KeyboardButton[] { "Add", "Read" },
-                            [ "Update", "Delete" ],
+                            [ "Update", "Delete", "<-Back" ],
                         })
                         {
                             ResizeKeyboard = true
