@@ -11,7 +11,7 @@ namespace FastFoodOnlineBot
     {
         public string categoryName { get; set; }
 
-        private static readonly string path = "C:\\Users\\Acer\\Desktop\\AdminFolder\\Categories.json";
+        private static readonly string path = "C:\\AdminFolder\\Categories.json";
 
         public static void Create(Categories category)
         {
@@ -36,7 +36,6 @@ namespace FastFoodOnlineBot
                 List<Categories> categories = Serializer<Categories>.GetAll(path);
                 foreach (Categories ct in categories)
                 {
-                    Console.WriteLine(ct.categoryName);
                     stringBuilder.Append($"Category: {ct.categoryName}\n");
                 }
                 return stringBuilder.ToString();

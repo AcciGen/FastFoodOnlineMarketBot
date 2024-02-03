@@ -11,7 +11,6 @@ namespace FastFoodOnlineBot
     {
         public static List<T> GetAll(string path)
         {
-
             if (System.IO.File.Exists(path))
             {
                 string json = System.IO.File.ReadAllText(path);
@@ -26,7 +25,7 @@ namespace FastFoodOnlineBot
         public static void Save(List<T> entities, string path)
         {
             string json = JsonSerializer.Serialize(entities);
-            System.IO.File.WriteAllText(path, json);
+            System.IO.File.WriteAllTextAsync(path, json);
         }
     }
 }
