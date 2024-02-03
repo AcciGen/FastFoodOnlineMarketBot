@@ -121,7 +121,7 @@ namespace FastFoodOnlineBot
                 //Console.WriteLine(sms.Body);
                 await botClient.SendTextMessageAsync(
                     chatId: chatId,
-                    text: "Please enter the code which was sent to your number...");
+                    text: "Please enter the code which was sent📨 to your number...");
 
                 return;
             }
@@ -233,9 +233,9 @@ namespace FastFoodOnlineBot
                         break;
 
                     case "OSA":
-                        Categories.Create(new Categories()
+                        OrderStatuses.Create(new OrderStatuses()
                         {
-                            categoryName = message.Text!
+                            status = message.Text!
                         });
 
                         crud = "OS";
@@ -476,6 +476,16 @@ namespace FastFoodOnlineBot
                         break;
 
                     case "Users OrderStatus":
+                        using (var package = new ExcelPackage(@"c:\temp\myWorkbook.xlsx"))
+                        {
+                            var sheet = package.Workbook.Worksheets.Add("My Sheet");
+                            sheet.Cells["A1"].Value = "Hello World!";
+
+                            // Save to file
+                            package.Save();
+                        }
+
+                        break;
                     case "All Orders":
                     case "All Users":
 
@@ -550,7 +560,7 @@ namespace FastFoodOnlineBot
                             case "OS":
                                 await botClient.SendTextMessageAsync(
                                     chatId: chatId,
-                                    text: $"OrderStatuses List<<\n{OrderStatuses.Read()}");
+                                    text: $">>OrderStatuses List<<\n{OrderStatuses.Read()}");
 
                                 break;
                         }
