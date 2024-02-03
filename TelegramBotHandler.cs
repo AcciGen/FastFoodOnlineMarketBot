@@ -24,8 +24,7 @@ namespace FastFoodOnlineBot
         string userPhoneNumber;
 
         string crud = "";
-        string oldName = "";
-        string oldType = "";
+        string old = "";
         short count = 0;
 
         bool contact = false;
@@ -220,26 +219,26 @@ namespace FastFoodOnlineBot
 
                         break;
 
-                    case "PtA":
+                    case "PTA":
                         PayTypes.Create(new PayTypes()
                         {
                             type = message.Text!
                         });
 
-                        crud = "Pt";
+                        crud = "PT";
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "New PayType created successfully!");
 
                         break;
 
-                    case "OA":
+                    case "OSA":
                         Categories.Create(new Categories()
                         {
                             categoryName = message.Text!
                         });
 
-                        crud = "O";
+                        crud = "OS";
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "New OrderStatus created successfully!");
@@ -250,7 +249,7 @@ namespace FastFoodOnlineBot
                     case "CU":
                         if (++count == 1)
                         {
-                            oldName = message.Text!;
+                            old = message.Text!;
                             await botClient.SendTextMessageAsync(
                                 chatId: chatId,
                                 text: "Now enter new name...");
@@ -260,7 +259,7 @@ namespace FastFoodOnlineBot
                         count = 0;
                         crud = "C";
 
-                        Categories.Update(oldName, message.Text!);
+                        Categories.Update(old, message.Text!);
 
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
@@ -271,7 +270,7 @@ namespace FastFoodOnlineBot
                     case "PU":
                         if (++count == 1)
                         {
-                            oldName = message.Text!;
+                            old = message.Text!;
                             await botClient.SendTextMessageAsync(
                                 chatId: chatId,
                                 text: "Now enter new name and price...");
@@ -281,7 +280,7 @@ namespace FastFoodOnlineBot
                         count = 0;
                         crud = "P";
 
-                        Products.Update(oldName, message.Text!);
+                        Products.Update(old, message.Text!);
 
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
@@ -289,10 +288,10 @@ namespace FastFoodOnlineBot
 
                         break;
 
-                    case "PtU":
+                    case "PTU":
                         if (++count == 1)
                         {
-                            oldType = message.Text!;
+                            old = message.Text!;
                             await botClient.SendTextMessageAsync(
                                 chatId: chatId,
                                 text: "Now enter new type...");
@@ -300,9 +299,9 @@ namespace FastFoodOnlineBot
                             break;
                         }
                         count = 0;
-                        crud = "Pt";
+                        crud = "PT";
 
-                        PayTypes.Update(oldType, message.Text!);
+                        PayTypes.Update(old, message.Text!);
 
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
@@ -310,6 +309,26 @@ namespace FastFoodOnlineBot
 
                         break;
 
+                    case "OSU":
+                        if (++count == 1)
+                        {
+                            old = message.Text!;
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Now enter new status...");
+
+                            break;
+                        }
+                        count = 0;
+                        crud = "OS";
+
+                        OrderStatuses.Update(old, message.Text!);
+
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Updated successfully!");
+
+                        break;
 
                     case "CD":
                         crud = "C";
@@ -333,10 +352,21 @@ namespace FastFoodOnlineBot
 
                         break;
 
-                    case "PtD":
-                        crud = "Pt";
+                    case "PTD":
+                        crud = "PT";
 
                         PayTypes.Delete(message.Text!);
+
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Deleted successfully!");
+
+                        break;
+
+                    case "OSD":
+                        crud = "OS";
+
+                        OrderStatuses.Delete(message.Text!);
 
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
@@ -406,7 +436,7 @@ namespace FastFoodOnlineBot
                         break;
 
                     case "PayType":
-                        crud = "Pt";
+                        crud = "PT";
 
                         ReplyKeyboardMarkup paytypeKeyboard = new(new[]
                         {
@@ -426,7 +456,7 @@ namespace FastFoodOnlineBot
                         break;
 
                     case "OrderStatus":
-                        crud = "O";
+                        crud = "OS";
 
                         ReplyKeyboardMarkup orderStatusKeyboard = new(new[]
                         {
@@ -472,8 +502,8 @@ namespace FastFoodOnlineBot
 
                                 break;
 
-                            case "Pt":
-                                crud = "PtA";
+                            case "PT":
+                                crud = "PTA";
 
                                 await botClient.SendTextMessageAsync(
                                     chatId: chatId,
@@ -481,8 +511,8 @@ namespace FastFoodOnlineBot
 
                                 break;
 
-                            case "O":
-                                crud = "OA";
+                            case "OS":
+                                crud = "OSA";
 
                                 await botClient.SendTextMessageAsync(
                                     chatId: chatId,
@@ -510,19 +540,19 @@ namespace FastFoodOnlineBot
 
                                 break;
 
-                            case "Pt":
+                            case "PT":
                                 await botClient.SendTextMessageAsync(
                                     chatId: chatId,
                                     text: $">>PayTypes List<<\n{PayTypes.Read()}");
 
                                 break;
 
-                                //case "O":
-                                //    await botClient.SendTextMessageAsync(
-                                //        chatId: chatId,
-                                //        text: $"OrderStatuses List<<\n{OrderStatuses.Read()}");
+                            case "OS":
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: $"OrderStatuses List<<\n{OrderStatuses.Read()}");
 
-                                //    break;
+                                break;
                         }
 
                         break;
@@ -548,8 +578,8 @@ namespace FastFoodOnlineBot
 
                                 break;
 
-                            case "Pt":
-                                crud = "PtU";
+                            case "PT":
+                                crud = "PTU";
 
                                 await botClient.SendTextMessageAsync(
                                     chatId: chatId,
@@ -557,8 +587,8 @@ namespace FastFoodOnlineBot
 
                                 break;
 
-                            case "O":
-                                crud = "OU";
+                            case "OS":
+                                crud = "OSU";
 
                                 await botClient.SendTextMessageAsync(
                                     chatId: chatId,
@@ -590,8 +620,8 @@ namespace FastFoodOnlineBot
 
                                 break;
 
-                            case "Pt":
-                                crud = "PtD";
+                            case "PT":
+                                crud = "PTD";
 
                                 await botClient.SendTextMessageAsync(
                                     chatId: chatId,
@@ -599,12 +629,12 @@ namespace FastFoodOnlineBot
 
                                 break;
 
-                            case "O":
-                                crud = "OD";
+                            case "OS":
+                                crud = "OSD";
 
                                 await botClient.SendTextMessageAsync(
                                     chatId: chatId,
-                                    text: "Enter OrderStatus name to delete...");
+                                    text: "Enter OrderStatus to delete...");
 
                                 break;
                         }
