@@ -204,9 +204,9 @@ namespace FastFoodOnlineBot
                         break;
 
                     case "PA":
-                        Categories.Create(new Categories()
+                        Products.Create(new Products()
                         {
-                            categoryName = message.Text!
+                            productName = message.Text!
                         });
 
                         crud = "P";
@@ -264,11 +264,43 @@ namespace FastFoodOnlineBot
 
                         break;
 
+                    case "PU":
+                        if (++count == 1)
+                        {
+                            oldName = message.Text!;
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Now enter the new name...");
+
+                            break;
+                        }
+                        count = 0;
+                        crud = "P";
+
+                        Products.Update(oldName, message.Text!);
+
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Updated successfully!");
+
+                        break;
+
 
                     case "CD":
                         crud = "C";
 
                         Categories.Delete(message.Text!);
+
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Deleted successfully!");
+
+                        break;
+
+                    case "PD":
+                        crud = "P";
+
+                        Products.Delete(message.Text!);
 
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
@@ -435,26 +467,26 @@ namespace FastFoodOnlineBot
 
                                 break;
 
-                            //case "P":
-                            //    await botClient.SendTextMessageAsync(
-                            //        chatId: chatId,
-                            //        text: $">>Products List<<\n{Products.Read()}");
+                            case "P":
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: $">>Products List<<\n{Products.Read()}");
 
-                            //    break;
+                                break;
 
-                            //case "Pt":
-                            //    await botClient.SendTextMessageAsync(
-                            //        chatId: chatId,
-                            //        text: $">>PayTypes List<<\n{PayTypes.Read()}");
+                                //case "Pt":
+                                //    await botClient.SendTextMessageAsync(
+                                //        chatId: chatId,
+                                //        text: $">>PayTypes List<<\n{PayTypes.Read()}");
 
-                            //    break;
+                                //    break;
 
-                            //case "O":
-                            //    await botClient.SendTextMessageAsync(
-                            //        chatId: chatId,
-                            //        text: $"OrderStatuses List<<\n{OrderStatuses.Read()}");
+                                //case "O":
+                                //    await botClient.SendTextMessageAsync(
+                                //        chatId: chatId,
+                                //        text: $"OrderStatuses List<<\n{OrderStatuses.Read()}");
 
-                            //    break;
+                                //    break;
                         }
 
                         break;

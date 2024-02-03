@@ -77,7 +77,6 @@ namespace FastFoodOnlineBot
                     categories.Remove(removableCategory);
                     Serializer<Categories>.Save(categories, path);
                 }
-
             }
             catch { }
         }
