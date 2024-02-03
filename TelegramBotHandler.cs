@@ -562,7 +562,7 @@ namespace FastFoodOnlineBot
 
                                 await botClient.SendTextMessageAsync(
                                     chatId: chatId,
-                                    text: "Enter the old OrderStatus name...");
+                                    text: "Enter the old OrderStatus...");
 
                                 break;
                         }
