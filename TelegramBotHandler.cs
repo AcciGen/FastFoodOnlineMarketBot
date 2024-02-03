@@ -187,6 +187,95 @@ namespace FastFoodOnlineBot
 
             else if (contact && adminPanel)
             {
+                switch (crud)
+                {
+                    case "CA":
+                        Categories.Create(new Categories()
+                        {
+                            categoryName = message.Text!
+                        });
+
+                        crud = "C";
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "New Category created successfully!");
+
+                        break;
+
+                    case "PA":
+                        Categories.Create(new Categories()
+                        {
+                            categoryName = message.Text!
+                        });
+
+                        crud = "P";
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "New Product created successfully!");
+
+                        break;
+
+                    case "PtA":
+                        Categories.Create(new Categories()
+                        {
+                            categoryName = message.Text!
+                        });
+
+                        crud = "Pt";
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "New PayType created successfully!");
+
+                        break;
+
+                    case "OA":
+                        Categories.Create(new Categories()
+                        {
+                            categoryName = message.Text!
+                        });
+
+                        crud = "O";
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "New OrderStatus created successfully!");
+
+                        break;
+
+
+                    case "CU":
+                        if (++count == 1)
+                        {
+                            oldName = message.Text!;
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Now enter the new name...");
+
+                            break;
+                        }
+                        count = 0;
+                        crud = "C";
+
+                        Categories.Update(oldName, message.Text!);
+
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Updated successfully!");
+
+                        break;
+
+
+                    case "CD":
+                        crud = "C";
+
+                        Categories.Delete(message.Text!);
+
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Deleted successfully!");
+
+                        break;
+                }
+
                 switch (message.Text)
                 {
                     case "Panel":
@@ -345,26 +434,26 @@ namespace FastFoodOnlineBot
 
                                 break;
 
-                            case "P":
-                                await botClient.SendTextMessageAsync(
-                                    chatId: chatId,
-                                    text: $">>Products List<<\n{Products.Read()}");
+                            //case "P":
+                            //    await botClient.SendTextMessageAsync(
+                            //        chatId: chatId,
+                            //        text: $">>Products List<<\n{Products.Read()}");
 
-                                break;
+                            //    break;
 
-                            case "Pt":
-                                await botClient.SendTextMessageAsync(
-                                    chatId: chatId,
-                                    text: $">>PayTypes List<<\n{PayTypes.Read()}");
+                            //case "Pt":
+                            //    await botClient.SendTextMessageAsync(
+                            //        chatId: chatId,
+                            //        text: $">>PayTypes List<<\n{PayTypes.Read()}");
 
-                                break;
+                            //    break;
 
-                            case "O":
-                                await botClient.SendTextMessageAsync(
-                                    chatId: chatId,
-                                    text: $"OrderStatuses List<<\n{OrderStatuses.Read()}");
+                            //case "O":
+                            //    await botClient.SendTextMessageAsync(
+                            //        chatId: chatId,
+                            //        text: $"OrderStatuses List<<\n{OrderStatuses.Read()}");
 
-                                break;
+                            //    break;
                         }
 
                         break;
@@ -415,84 +504,41 @@ namespace FastFoodOnlineBot
                         switch (crud)
                         {
                             case "C":
+                                crud = "CD";
+
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: "Enter Category name to delete...");
+
+                                break;
+
+                            case "P":
+                                crud = "PD";
+
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: "Enter Product name to delete...");
+
+                                break;
+
+                            case "Pt":
+                                crud = "PtD";
+
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: "Enter PayType name to delete...");
+
+                                break;
+
+                            case "O":
+                                crud = "OD";
+
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: "Enter OrderStatus name to delete...");
 
                                 break;
                         }
-
-                        break;
-                }
-
-                switch (crud)
-                {
-                    case "CA":
-                        Categories.Create(new Categories()
-                        {
-                            categoryName = message.Text!
-                        });
-
-                        crud = "C";
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: "New Category created successfully!");
-
-                        break;
-
-                    case "PA":
-                        Categories.Create(new Categories()
-                        {
-                            categoryName = message.Text!
-                        });
-
-                        crud = "P";
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: "New Product created successfully!");
-
-                        break;
-
-                    case "PtA":
-                        Categories.Create(new Categories()
-                        {
-                            categoryName = message.Text!
-                        });
-
-                        crud = "Pt";
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: "New PayType created successfully!");
-
-                        break;
-
-                    case "OA":
-                        Categories.Create(new Categories()
-                        {
-                            categoryName = message.Text!
-                        });
-
-                        crud = "O";
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: "New OrderStatus created successfully!");
-
-                        break;
-
-
-                    case "CU":
-                        if (++count == 1)
-                        {
-                            oldName = message.Text!;
-                            await botClient.SendTextMessageAsync(
-                                chatId: chatId,
-                                text: "Now enter the new name...");
-
-                            break;
-                        }
-                        count = 0;
-
-                        Categories.Update(oldName, message.Text!);
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: "Updated successfully!");
 
                         break;
                 }

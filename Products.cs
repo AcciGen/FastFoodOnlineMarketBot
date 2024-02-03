@@ -8,5 +8,6 @@ namespace FastFoodOnlineBot
 {
     public class Products
     {
+
     }
 }
