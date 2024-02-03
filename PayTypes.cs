@@ -64,12 +64,12 @@ namespace FastFoodOnlineBot
             catch { }
         }
 
-        public static void Delete(string delName)
+        public static void Delete(string delType)
         {
             try
             {
                 List<PayTypes> payTypes = Serializer<PayTypes>.GetAll(path);
-                var removablePayType = payTypes.Find(pt => pt.type == delName);
+                var removablePayType = payTypes.Find(pt => pt.type == delType);
 
                 if (removablePayType != null)
                 {
