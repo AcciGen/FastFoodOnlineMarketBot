@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FastFoodOnlineBot
 {
-    public class productCRUD
+    public class Products
     {
     }
 }

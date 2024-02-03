@@ -46,14 +46,14 @@ namespace FastFoodOnlineBot
             }
         }
 
-        public static void Update(string newName)
+        public static void Update(string oldName, string newName)
         {
             try
             {
                 List<Categories> categories = Serializer<Categories>.GetAll(path);
                 if (categories != null)
                 {
-                    int index = categories.FindIndex(name => name.categoryName == newName);
+                    int index = categories.FindIndex(name => name.categoryName == oldName);
                     
                     if (index != -1)
                     {
