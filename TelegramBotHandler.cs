@@ -1,6 +1,8 @@
 ﻿using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,6 +36,9 @@ namespace FastFoodOnlineBot
         
         bool adminPanel = false;
         bool userPanel = false;
+
+        string excelFilePath = "C:\\AdminPanel\\Orders.xlsx";
+        string ordersPath = "C:\\UserPanel\\Orders.json";
 
         public TelegramBotHandler(string token)
         {
@@ -210,8 +215,9 @@ namespace FastFoodOnlineBot
 
                         Products.Create(new Products()
                         {
-                            productName = parts[0],
-                            price = int.Parse(parts[1])
+                            categoryName = parts[0],
+                            productName = parts[1],
+                            price = int.Parse(parts[2])
                         });
 
                         crud = "P";
@@ -407,76 +413,54 @@ namespace FastFoodOnlineBot
                     case "Product":
                         crud = "P";
 
-                        ReplyKeyboardMarkup productKeyboard = new(new[]
-                        {
-                            new KeyboardButton[] { "Add", "Read" },
-                                [ "Update", "Delete", "Panel" ],
-                        })
-                        {
-                            ResizeKeyboard = true
-                        };
-
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            cancellationToken: cancellationToken,
-                            text: "Sure",
-                            replyMarkup: productKeyboard);
+                        await CRUDPanel(botClient, update, cancellationToken);
 
                         break;
 
                     case "PayType":
                         crud = "PT";
 
-                        ReplyKeyboardMarkup paytypeKeyboard = new(new[]
-                        {
-                            new KeyboardButton[] { "Add", "Read" },
-                                [ "Update", "Delete", "Panel" ],
-                        })
-                        {
-                            ResizeKeyboard = true
-                        };
-
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            cancellationToken: cancellationToken,
-                            text: "Sure",
-                            replyMarkup: paytypeKeyboard);
+                        await CRUDPanel(botClient, update, cancellationToken);
 
                         break;
 
                     case "OrderStatus":
                         crud = "OS";
 
-                        ReplyKeyboardMarkup orderStatusKeyboard = new(new[]
-                        {
-                            new KeyboardButton[] { "Add", "Read" },
-                                [ "Update", "Delete", "Panel" ],
-                        })
-                        {
-                            ResizeKeyboard = true
-                        };
-
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            cancellationToken: cancellationToken,
-                            text: "Sure",
-                            replyMarkup: orderStatusKeyboard);
+                        await CRUDPanel(botClient, update, cancellationToken);
 
                         break;
 
                     case "Users OrderStatus":
-                        using (var package = new ExcelPackage("C:\\AdminPanel\\Orders.xlsx"))
-                        {
-                            var sheet = package.Workbook.Worksheets.Add("Orders");
-                            sheet.Cells["A1"].Value = "Hello World!";
-
-                            // Save to file
-                            package.Save();
-                        }
+                        
 
                         break;
 
                     case "All Orders":
+                        //using (var package = new ExcelPackage(excelFilePath))
+                        //{
+                        //    var sheet = package.Workbook.Worksheets.Add("Orders");
+
+                        //    sheet.Cells["A1"].Value = "UserId";
+                        //    sheet.Cells["B1"].Value = "Product";
+                        //    sheet.Cells["C1"].Value = "Price";
+
+                        //    List<OrderStatuses> orders = Serializer<OrderStatuses>.GetAll(ordersPath);
+
+                        //    int row = 2; // starting from row 2 to skip headers
+                        //    foreach (var order in orders)
+                        //    {
+                        //        sheet.Cells[row, 1].Value = order.UserId;
+                        //        sheet.Cells[row, 2].Value = order.Product;
+                        //        sheet.Cells[row, 3].Value = order.Product;
+                        //        row++;
+                        //    }
+
+                        //    package.Save();
+                        //}
+
+                        break;
+
                     case "All Users":
 
                         break;
@@ -498,7 +482,7 @@ namespace FastFoodOnlineBot
 
                                 await botClient.SendTextMessageAsync(
                                     chatId: chatId,
-                                    text: "Enter new Product with price...\nExample: Fries 14000");
+                                    text: "Enter new Product...\nExample: Burgers Hamburger 35000");
 
                                 break;
 

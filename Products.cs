@@ -8,6 +8,7 @@ namespace FastFoodOnlineBot
 {
     public class Products
     {
+        public string categoryName { get; set; }
         public string productName { get; set; }
         public int price { get; set; }
 
@@ -36,7 +37,7 @@ namespace FastFoodOnlineBot
                 List<Products> products = Serializer<Products>.GetAll(path);
                 foreach (Products p in products)
                 {
-                    stringBuilder.Append($"Product: {p.productName}\nPrice: {p.price}\n");
+                    stringBuilder.Append($"Category: {p.categoryName}\nProduct: {p.productName}\nPrice: {p.price}\n");
                 }
                 return stringBuilder.ToString();
             }
@@ -59,8 +60,9 @@ namespace FastFoodOnlineBot
                     {
                         string[] parts = newProduct.Split(' ');
 
-                        products[index].productName = parts[0];
-                        products[index].price = int.Parse(parts[1]);
+                        products[index].categoryName = parts[0];
+                        products[index].productName = parts[1];
+                        products[index].price = int.Parse(parts[2]);
                         Serializer<Products>.Save(products, path);
                     }
                 }
