@@ -775,7 +775,8 @@ namespace FastFoodOnlineBot
                             {
                                 UserOrders.Create(new UserOrders()
                                 {
-                                    productName = product.productName,
+                                    productName = product.categoryName,
+                                    productType = product.productName,
                                     amount = message.Text,
                                     price = product.price
                                 });
