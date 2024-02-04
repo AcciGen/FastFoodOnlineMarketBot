@@ -14,6 +14,7 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using Twilio;
 using Twilio.Rest.Api.V2010.Account;
+using Twilio.TwiML.Messaging;
 using Twilio.Types;
 
 namespace FastFoodOnlineBot
@@ -31,11 +32,15 @@ namespace FastFoodOnlineBot
         string old = "";
         short count = 0;
 
+        int total = 0;
+        string lastProduct = "";
+
         bool contact = false;
         bool receivedSms = false;
         
         bool adminPanel = false;
         bool userPanel = false;
+        bool selectPanel = false;
 
         List<Categories> categories;
         List<Products> products;
@@ -719,29 +724,55 @@ namespace FastFoodOnlineBot
                             replyMarkup: paymentKeyboardMarkup);
 
                         break;
-                }
 
-                for (int c = 0; c < categories.Count; c++)
-                {
-                    if (message.Text == categories[c].categoryName)
-                    {
-                        products = Serializer<Products>.GetAll(productsPath);
-
-                        var productsKeyboard = new List<KeyboardButton[]>();
-                        foreach (var p in products)
+                    case "1":
+                    case "2":
+                    case "3":
+                    case "4":
+                    case "5":
+                    case "6":
+                    case "7":
+                    case "8":
+                    case "9":
+                        foreach (var product in products)
                         {
-                            if (p.categoryName == categories[c].categoryName)
-                                productsKeyboard.Add([p.productName]);
+                            if (lastProduct == product.productName)
+                            {
+                                total += product.price * int.Parse(message.Text);
+                                return;
+                            }
                         }
 
-                        ReplyKeyboardMarkup productsKeyboardMarkup = new(productsKeyboard) { ResizeKeyboard = true };
+                        break;
+                }
+
+                await SearchCategory(botClient, update, cancellationToken, message.Text!);
+
+                foreach (var product in products)
+                {
+                    if (message.Text ==  product.productName)
+                    {
+                        selectPanel = true;
+                        lastProduct = product.productName;
+
+                        ReplyKeyboardMarkup categoryKeyboard = new(new[]
+                        {
+                            new KeyboardButton[] { "1", "2", "3", "4", "5" },
+                                [ "6", "7", "8", "9", $"{product.categoryName}" ],
+                        })
+                        {
+                            ResizeKeyboard = true
+                        };
 
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             cancellationToken: cancellationToken,
-                            text: "Sure",
-                            replyMarkup: productsKeyboardMarkup);
+                            text: $"Select the number of {product.productName}",
+                            replyMarkup: categoryKeyboard);
+                        
+                        return;
                     }
+
                 }
 
                 return;
@@ -766,6 +797,34 @@ namespace FastFoodOnlineBot
                 cancellationToken: cancellationToken,
                 text: "Sure",
                 replyMarkup: categoryKeyboard);
+        }
+
+        public async Task SearchCategory(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, string category)
+        {
+            for (int c = 0; c < categories.Count; c++)
+            {
+                if (category == categories[c].categoryName)
+                {
+                    products = Serializer<Products>.GetAll(productsPath);
+
+                    var productsKeyboard = new List<KeyboardButton[]>();
+                    foreach (var p in products)
+                    {
+                        if (p.categoryName == categories[c].categoryName)
+                            productsKeyboard.Add([p.productName]);
+                    }
+
+                    ReplyKeyboardMarkup productsKeyboardMarkup = new(productsKeyboard) { ResizeKeyboard = true };
+
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        cancellationToken: cancellationToken,
+                        text: "Sure",
+                        replyMarkup: productsKeyboardMarkup);
+
+                    return;
+                }
+            }
         }
 
         public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
