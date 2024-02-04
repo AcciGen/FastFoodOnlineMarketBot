@@ -9,6 +9,7 @@ namespace FastFoodOnlineBot
     public class UserOrders
     {
         public string productName { get; set; }
+        public string productType { get; set; }
         public string amount { get; set; }
         public int price { get; set; }
 
@@ -19,7 +20,7 @@ namespace FastFoodOnlineBot
             try
             {
                 List<UserOrders> userOrders = Serializer<UserOrders>.GetAll(path);
-                if (userOrders.Any(uo => uo.productName == userOrder.productName))
+                if (userOrders.Any(uo => uo.productType == userOrder.productType))
                 {
                     return;
                 }
@@ -37,7 +38,7 @@ namespace FastFoodOnlineBot
                 List<UserOrders> userOrders = Serializer<UserOrders>.GetAll(path);
                 foreach (UserOrders uo in userOrders)
                 {
-                    stringBuilder.Append($"{uo.productName} {uo.amount}x - {uo.price}\n");
+                    stringBuilder.Append($"{uo.productName} {uo.productType} {uo.amount}x - {uo.price}\n");
                 }
                 return stringBuilder.ToString();
             }
@@ -52,7 +53,7 @@ namespace FastFoodOnlineBot
             try
             {
                 List<UserOrders> userOrders = Serializer<UserOrders>.GetAll(path);
-                var removableUserOrder = userOrders.Find(uo => uo.productName == delProduct);
+                var removableUserOrder = userOrders.Find(uo => uo.productType == delProduct);
 
                 if (removableUserOrder != null)
                 {

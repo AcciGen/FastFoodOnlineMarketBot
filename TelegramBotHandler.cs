@@ -717,7 +717,7 @@ namespace FastFoodOnlineBot
                     case "My Orders":
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
-                            text: $">>Orders<<\n{Categories.Read()}Total: {total}");
+                            text: $">>Orders<<\n{UserOrders.Read()}Total: {total}");
 
                         break;
 
@@ -743,7 +743,7 @@ namespace FastFoodOnlineBot
 
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
-                            text: "Enter Product name to delete...");
+                            text: "Enter Product Type to delete...");
                             
                         break;
 
@@ -869,7 +869,7 @@ namespace FastFoodOnlineBot
                         if (p.categoryName == categories[c].categoryName)
                             productsKeyboard.Add([p.productName]);
                     }
-                    productsKeyboard.Add(["Main Menu"]);
+                    productsKeyboard.Add(["Products"]);
 
                     ReplyKeyboardMarkup productsKeyboardMarkup = new(productsKeyboard) { ResizeKeyboard = true };
 
