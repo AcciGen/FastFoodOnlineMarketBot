@@ -675,7 +675,7 @@ namespace FastFoodOnlineBot
                         var paymentKeyboard = new List<KeyboardButton[]>();
                         foreach (var pt in payTypes)
                         {
-                            paymentKeyboard.Add([pt.type);
+                            paymentKeyboard.Add([pt.type]);
                         }
 
                         ReplyKeyboardMarkup paymentKeyboardMarkup = new( paymentKeyboard ){ ResizeKeyboard = true };
