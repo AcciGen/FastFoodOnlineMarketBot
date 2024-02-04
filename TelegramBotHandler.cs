@@ -37,6 +37,9 @@ namespace FastFoodOnlineBot
         bool adminPanel = false;
         bool userPanel = false;
 
+        string categoriesPath = "C:\\AdminPanel\\Categories.json";
+        string productsPath = "C:\\AdminPanel\\Products.json";
+        string payTypesPath = "C:\\AdminPanel\\PayTypes.json";
         string excelFilePath = "C:\\AdminPanel\\Orders.xlsx";
         string ordersPath = "C:\\UserPanel\\Orders.json";
 
@@ -92,6 +95,7 @@ namespace FastFoodOnlineBot
                     receivedSms = false;
                     adminPanel = false;
                     userPanel = false;
+                    crud = "";
                 }
 
                 var replyKeyboard = new ReplyKeyboardMarkup(
@@ -635,13 +639,12 @@ namespace FastFoodOnlineBot
             {
                 switch (message.Text)
                 {
-                    case "Product":
+                    case "Main Menu":
                         ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
-                            {
-                                new KeyboardButton[] { "Sandwich", "Taco", "Hot Dog", "Fries" },
-                                    ["Cheeseburger", "Pizza", "Chicken", "Ice Cream"],
-                                    [ "Coke", "Juice", "Coffee", "<-Back" ]
-                            })
+                        {
+                            new KeyboardButton[] { "Products", "Basket" },
+                                [ "All Orders", "Deliver" ]
+                        })
                         {
                             ResizeKeyboard = true
                         };
@@ -649,9 +652,39 @@ namespace FastFoodOnlineBot
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             cancellationToken: cancellationToken,
-                            text: "Choose the products you want to buy...",
+                            text: "Magic Main Menu🔮🪄",
                             replyMarkup: replyKeyboardMarkup);
 
+                        break;
+
+                    case "Products":
+
+                        break;
+
+                    case "Basket":
+
+                        break;
+
+                    case "All Orders":
+
+                        break;
+
+                    case "Deliver":
+                        List<PayTypes> payTypes = Serializer<PayTypes>.GetAll(payTypesPath);
+
+                        var paymentKeyboard = new List<KeyboardButton[]>();
+                        foreach (var pt in payTypes)
+                        {
+                            paymentKeyboard.Add([pt.type]);
+                        }
+
+                        ReplyKeyboardMarkup paymentKeyboardMarkup = new( paymentKeyboard ){ ResizeKeyboard = true };
+
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            cancellationToken: cancellationToken,
+                            text: "Choose Payment Type...",
+                            replyMarkup: paymentKeyboardMarkup);
                         break;
                 }
 
