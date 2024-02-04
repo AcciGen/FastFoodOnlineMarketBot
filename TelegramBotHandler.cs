@@ -28,7 +28,7 @@ namespace FastFoodOnlineBot
         public string Token { get; set; }
         string accountSid = "AC7bcc36021b3503cdd0f2e0cd579a3904";
         string authToken = "afb47832338a2e4306c8612861de1917";
-        string admin = "+99890024613";
+        string admin = "+998900246136";
         string userPhoneNumber;
         long chatId;
 
@@ -41,7 +41,8 @@ namespace FastFoodOnlineBot
         int total = 0;
         string lastProduct = "";
         bool deletion = false;
-        bool getFile = false;
+        bool getPdf = false;
+        bool getExcel = false;
         bool location = false;
 
         bool contact = false;
@@ -109,7 +110,8 @@ namespace FastFoodOnlineBot
                     crud = "";
                     total = 0;
                     deletion = false;
-                    getFile = false;
+                    getPdf = false;
+                    getExcel = false;
                     location = false;
                     contact = false;
                     receivedSms = false;
@@ -466,10 +468,6 @@ namespace FastFoodOnlineBot
                         break;
 
                     case "All Orders":
-                        if (System.IO.File.Exists(excelFilePath))
-                        {
-                            System.IO.File.Delete(excelFilePath);
-                        }
                         using (var package = new ExcelPackage(excelFilePath))
                         {
                             var sheet = package.Workbook.Worksheets.Add("Orders");
@@ -489,11 +487,11 @@ namespace FastFoodOnlineBot
 
                             package.Save();
                         }
+                        getExcel = true;
 
                         break;
 
                     case "All Users":
-                        getFile = true;
                         iTextSharp.text.Document pdf = new iTextSharp.text.Document();
 
                         PdfWriter writer = PdfWriter.GetInstance(pdf, new FileStream(pdfFilePath, FileMode.Create));
@@ -503,6 +501,7 @@ namespace FastFoodOnlineBot
                             pdf.Add(new Paragraph($"Phone Number: {user.phoneNumber}\nOrder: {user.orders}\nOrder Status: {user.orderStatus}\n"));
                         }
                         pdf.Close();
+                        getPdf = true;
 
                         break;
 
@@ -678,7 +677,7 @@ namespace FastFoodOnlineBot
                     return;
                 }
 
-                else if (getFile)
+                else if (getPdf)
                 {
                     await using Stream stream = System.IO.File.OpenRead(pdfFilePath);
 
@@ -688,8 +687,23 @@ namespace FastFoodOnlineBot
                         caption: "Your users");
                     stream.Dispose();
 
-                    getFile = false;
+                    getPdf = false;
                     System.IO.File.Delete(pdfFilePath);
+                    return;
+                }
+
+                else if (getExcel)
+                {
+                    await using Stream stream = System.IO.File.OpenRead(excelFilePath);
+
+                    await botClient.SendDocumentAsync(
+                        chatId: update.Message.Chat.Id,
+                        document: InputFile.FromStream(stream: stream, fileName: $"Users.xlsx"),
+                        caption: "Users Orders");
+                    stream.Dispose();
+
+                    getExcel = false;
+                    System.IO.File.Delete(excelFilePath);
                     return;
                 }
 
@@ -815,7 +829,7 @@ namespace FastFoodOnlineBot
                         pdf.Add(new Paragraph($"Total: {total}"));
                         pdf.Close();
 
-                        getFile = true;
+                        getPdf = true;
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             text: "Enter get to continue...");
@@ -856,7 +870,7 @@ namespace FastFoodOnlineBot
                     return;
                 }
 
-                if (getFile && message.Text == "get")
+                if (getPdf && message.Text == "get")
                 {
                     await using Stream stream = System.IO.File.OpenRead(pdfFilePath);
 
