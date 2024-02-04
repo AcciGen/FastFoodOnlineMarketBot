@@ -9,7 +9,7 @@ namespace FastFoodOnlineBot
     public class UserOrders
     {
         public string productName { get; set; }
-        public int amount { get; set; }
+        public string amount { get; set; }
 
         private static readonly string path = "C:\\UserFolder\\UserOrders.json";
 

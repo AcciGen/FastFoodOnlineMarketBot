@@ -34,13 +34,13 @@ namespace FastFoodOnlineBot
 
         int total = 0;
         string lastProduct = "";
+        bool deletion = false;
 
         bool contact = false;
         bool receivedSms = false;
         
         bool adminPanel = false;
         bool userPanel = false;
-        bool selectPanel = false;
 
         List<Categories> categories;
         List<Products> products;
@@ -187,7 +187,7 @@ namespace FastFoodOnlineBot
                     ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
                     {
                         new KeyboardButton[] { "Products", "Basket" },
-                            [ "All Orders", "Deliver" ]
+                            [ "Get Orders" ]
                     })
                     {
                         ResizeKeyboard = true
@@ -651,7 +651,7 @@ namespace FastFoodOnlineBot
                         ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
                         {
                             new KeyboardButton[] { "Products", "Basket" },
-                                [ "All Orders", "Deliver" ]
+                                [ "Get Orders" ]
                         })
                         {
                             ResizeKeyboard = true
@@ -688,6 +688,7 @@ namespace FastFoodOnlineBot
                                 categoriesKeyboard.Add([categories[i].categoryName, categories[i + 1].categoryName,]);
                             }
                         }
+                        categoriesKeyboard.Add(["Main Menu"]);
 
                         ReplyKeyboardMarkup categoriesKeyboardMarkup = new(categoriesKeyboard) { ResizeKeyboard = true };
 
@@ -699,10 +700,28 @@ namespace FastFoodOnlineBot
                         break;
 
                     case "Basket":
+                        ReplyKeyboardMarkup basketKeyboardMarkup = new(new[]
+                        {
+                            new KeyboardButton[] { "My Orders", "Deliver" },
+                                [ "Remove Product", "Clear Basket" ],
+                                [ "Main Menu" ]
+                        })
+                        {
+                            ResizeKeyboard = true
+                        };
+
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            cancellationToken: cancellationToken,
+                            text: "Here you go!",
+                            replyMarkup: basketKeyboardMarkup);
 
                         break;
 
-                    case "All Orders":
+                    case "My Orders":
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: $">>Orders<<\n{Categories.Read()}Total: {total}");
 
                         break;
 
@@ -715,13 +734,35 @@ namespace FastFoodOnlineBot
                             paymentKeyboard.Add([pt.type]);
                         }
 
-                        ReplyKeyboardMarkup paymentKeyboardMarkup = new( paymentKeyboard ){ ResizeKeyboard = true };
+                        ReplyKeyboardMarkup paymentKeyboardMarkup = new(paymentKeyboard) { ResizeKeyboard = true };
 
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             cancellationToken: cancellationToken,
                             text: "Choose Payment Type...",
                             replyMarkup: paymentKeyboardMarkup);
+
+                        break;
+
+                    case "Remove Product":
+                        deletion = true;
+
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Enter Product name to delete...");
+                            
+                        break;
+
+                    case "Clear Basket":
+                        UserOrders.DeleteAll();
+
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Your basket is clear now!");
+
+                        break;
+
+                    case "Get Orders":
 
                         break;
 
@@ -738,10 +779,19 @@ namespace FastFoodOnlineBot
                         {
                             if (lastProduct == product.productName)
                             {
+                                UserOrders.Create(new UserOrders()
+                                {
+                                    productName = product.productName,
+                                    amount = message.Text
+                                });
+
                                 total += product.price * int.Parse(message.Text);
                                 return;
                             }
                         }
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: $"Great!");
 
                         break;
                 }
@@ -752,7 +802,18 @@ namespace FastFoodOnlineBot
                 {
                     if (message.Text ==  product.productName)
                     {
-                        selectPanel = true;
+                        if (deletion)
+                        {
+                            UserOrders.Delete(message.Text!);
+                            deletion = false;
+
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Removed from your basket successfully!");
+                            
+                            return;
+                        }
+
                         lastProduct = product.productName;
 
                         ReplyKeyboardMarkup categoryKeyboard = new(new[]
