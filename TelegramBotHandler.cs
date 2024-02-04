@@ -825,7 +825,7 @@ namespace FastFoodOnlineBot
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
                             cancellationToken: cancellationToken,
-                            text: $"Select the number of {product.productName}",
+                            text: $"Select the number...",
                             replyMarkup: categoryKeyboard);
                         
                         return;
@@ -869,6 +869,7 @@ namespace FastFoodOnlineBot
                         if (p.categoryName == categories[c].categoryName)
                             productsKeyboard.Add([p.productName]);
                     }
+                    productsKeyboard.Add(["Main Menu"]);
 
                     ReplyKeyboardMarkup productsKeyboardMarkup = new(productsKeyboard) { ResizeKeyboard = true };
 
