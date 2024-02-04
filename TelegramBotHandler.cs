@@ -35,11 +35,13 @@ namespace FastFoodOnlineBot
         string crud = "";
         string old = "";
         short count = 0;
+        bool statusChange = false;
 
         int total = 0;
         string lastProduct = "";
         bool deletion = false;
-        bool getOrders = false;
+        bool getFile = false;
+        bool location = false;
 
         bool contact = false;
         bool receivedSms = false;
@@ -101,11 +103,15 @@ namespace FastFoodOnlineBot
                 if (contact == true)
                 {
                     userPhoneNumber = "";
+                    crud = "";
+                    total = 0;
+                    deletion = false;
+                    getFile = false;
+                    location = false;
                     contact = false;
                     receivedSms = false;
                     adminPanel = false;
                     userPanel = false;
-                    crud = "";
                 }
 
                 var replyKeyboard = new ReplyKeyboardMarkup(
@@ -185,6 +191,7 @@ namespace FastFoodOnlineBot
                 else
                 {
                     userPanel = true;
+                    UserOrders.DeleteAll();
 
                     ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
                     {
@@ -446,7 +453,11 @@ namespace FastFoodOnlineBot
                         break;
 
                     case "Users OrderStatus":
-                        
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Please enter phone number and new status of the user...\nExample: +998900246136 Delivered");
+
+                        statusChange = true;
 
                         break;
 
@@ -476,6 +487,17 @@ namespace FastFoodOnlineBot
                         break;
 
                     case "All Users":
+                        List<Users> users = Serializer<Users>.GetAll("C:\\AdminFolder\\Users.json");
+                        iTextSharp.text.Document pdf = new iTextSharp.text.Document();
+
+                        PdfWriter writer = PdfWriter.GetInstance(pdf, new FileStream(pdfFilePath, FileMode.Create));
+                        pdf.Open();
+                        foreach (var user in users)
+                        {
+                            pdf.Add(new Paragraph($"Phone Number: {user.phoneNumber}\nOrder: {user.orders}\nOrder Status: {user.orderStatus}\n"));
+                        }
+                        pdf.Close();
+
 
                         break;
 
@@ -640,6 +662,30 @@ namespace FastFoodOnlineBot
                         break;
                 }
 
+                if (statusChange)
+                {
+                    Users.Update(message.Text!);
+
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Order Status of that user was changed successfully!");
+                    return;
+                }
+                else if (getFile)
+                {
+                    await using Stream stream = System.IO.File.OpenRead(pdfFilePath);
+
+                    await botClient.SendDocumentAsync(
+                        chatId: update.Message.Chat.Id,
+                        document: InputFile.FromStream(stream: stream, fileName: $"Users.pdf"),
+                        caption: "Your users");
+                    stream.Dispose();
+
+                    getFile = false;
+                    System.IO.File.Delete(pdfFilePath);
+                    return;
+                }
+
                 return;
             }
 #endregion
@@ -726,20 +772,9 @@ namespace FastFoodOnlineBot
                         break;
 
                     case "Deliver":
-                        var paymentKeyboard = new List<KeyboardButton[]>();
-                        foreach (var pt in payTypes)
-                        {
-                            paymentKeyboard.Add([pt.type]);
-                        }
-                        paymentKeyboard.Add(["Basket"]);
-
-                        ReplyKeyboardMarkup paymentKeyboardMarkup = new(paymentKeyboard) { ResizeKeyboard = true };
-
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
-                            cancellationToken: cancellationToken,
-                            text: "Choose Payment Type...",
-                            replyMarkup: paymentKeyboardMarkup);
+                            text: "Please, send your location...");
 
                         break;
 
@@ -770,12 +805,15 @@ namespace FastFoodOnlineBot
                         pdf.Open();
                         foreach (var order in userOrders)
                         {
-                            pdf.Add(new Paragraph($"Product: {order.productName} Type: {order.productType} Amount: {order.amount} Price: {order.price}"));
+                            pdf.Add(new Paragraph($"Product: {order.productName}\nType: {order.productType}\nAmount: {order.amount}x\nPrice: {order.price}\n"));
                         }
                         pdf.Add(new Paragraph($"Total: {total}"));
                         pdf.Close();
 
-                        getOrders = true;
+                        getFile = true;
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Enter get to continue...");
 
                         break;
 
@@ -810,19 +848,20 @@ namespace FastFoodOnlineBot
                             }
                         }
 
-                    if (getOrders)
-                    {
-                            await using Stream stream = System.IO.File.OpenRead(pdfFilePath);
+                    return;
+                }
 
-                            await botClient.SendDocumentAsync(
-                                chatId: update.Message.Chat.Id,
-                                document: InputFile.FromStream(stream: stream, fileName: $"Orders.pdf"),
-                                caption: "Your Orders"
-                                );
-                            stream.Dispose();
+                if (getFile && message.Text == "get")
+                {
+                    await using Stream stream = System.IO.File.OpenRead(pdfFilePath);
 
-                            System.IO.File.Delete(pdfFilePath);
-                    }
+                    await botClient.SendDocumentAsync(
+                        chatId: update.Message.Chat.Id,
+                        document: InputFile.FromStream(stream: stream, fileName: $"Orders.pdf"),
+                        caption: "Your orders");
+                    stream.Dispose();
+
+                    System.IO.File.Delete(pdfFilePath);
 
                     return;
                 }
@@ -871,6 +910,71 @@ namespace FastFoodOnlineBot
                         return;
                     }
 
+                }
+
+                if (message.Type == MessageType.Location)
+                {
+                    location = true;
+                    var paymentKeyboard = new List<KeyboardButton[]>();
+                    foreach (var pt in payTypes)
+                    {
+                        paymentKeyboard.Add([pt.type]);
+                    }
+                    paymentKeyboard.Add(["Basket"]);
+
+                    ReplyKeyboardMarkup paymentKeyboardMarkup = new(paymentKeyboard) { ResizeKeyboard = true };
+
+                    await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        cancellationToken: cancellationToken,
+                        text: "Great! Now choose the payment type...",
+                        replyMarkup: paymentKeyboardMarkup);
+
+                    return;
+                }
+
+                if (location)
+                {
+                    foreach (var payType in payTypes)
+                    {
+                        if (message.Text == payType.type)
+                        {
+                            if (message.Text == "Cash")
+                            {
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: "Wait 10-15 minutes until our delivery boy come to you and he can get your money...\nSee You Soon!");
+
+                                UserOrders.DeleteAll();
+                                total = 0;
+                                location = false;
+
+                                Users.Create(new Users()
+                                {
+                                    phoneNumber = userPhoneNumber,
+                                    orders = UserOrders.Read(),
+                                    orderStatus = "Delivering"
+                                });
+                                return;
+                            }
+
+                            await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: "Great!\nYour package is on the way...\nSee You Soon!");
+
+                            UserOrders.DeleteAll();
+                            total = 0;
+                            location = false;
+
+                            Users.Create(new Users()
+                            {
+                                phoneNumber = userPhoneNumber,
+                                orders = UserOrders.Read(),
+                                orderStatus = "Delivering"
+                            });
+                            return;
+                        }
+                    }
                 }
 
                 return;

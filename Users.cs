@@ -8,7 +8,6 @@ namespace FastFoodOnlineBot
 {
     public class Users
     {
-        public int Id { get; set; }
         public string phoneNumber { get; set; }
         public string orders { get; set; }
         public string orderStatus { get; set; }
@@ -20,7 +19,7 @@ namespace FastFoodOnlineBot
             try
             {
                 List<Users> users = Serializer<Users>.GetAll(path);
-                if (users.Any(u => u.Id == user.Id))
+                if (users.Any(u => u.phoneNumber == user.phoneNumber))
                 {
                     return;
                 }
@@ -38,7 +37,7 @@ namespace FastFoodOnlineBot
                 List<Users> users = Serializer<Users>.GetAll(path);
                 foreach (Users user in users)
                 {
-                    stringBuilder.Append($"Id: {user.Id}\nPhone Number: {user.phoneNumber}\nOrders: {user.orders}\nOrders Status: {user.orderStatus}\n\n");
+                    stringBuilder.Append($"Phone Number: {user.phoneNumber}\nOrders: {user.orders}\nOrders Status: {user.orderStatus}\n\n");
                 }
                 return stringBuilder.ToString();
             }
@@ -47,18 +46,20 @@ namespace FastFoodOnlineBot
                 return string.Empty;
             }
         }
-        public static void Update(int Id, string newStatus)
+        public static void Update(string Status)
         {
             try
             {
                 List<Users> users = Serializer<Users>.GetAll(path);
                 if (users != null)
                 {
-                    int index = users.FindIndex(user => user.Id == Id);
+                    string[] parts = Status.Split(' ');
+                    int index = users.FindIndex(user => user.phoneNumber == parts[0]);
 
                     if (index != -1)
                     {
-                        users[index].orderStatus = newStatus;
+
+                        users[index].orderStatus = parts[1];
                         Serializer<Users>.Save(users, path);
                     }
                 }
