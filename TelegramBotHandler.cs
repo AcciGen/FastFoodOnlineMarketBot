@@ -42,12 +42,10 @@ namespace FastFoodOnlineBot
         bool adminPanel = false;
         bool userPanel = false;
 
-        List<Categories> categories;
-        List<Products> products;
+        List<Categories> categories = Serializer<Categories>.GetAll("C:\\AdminFolder\\Categories.json");
+        List<Products> products = Serializer<Products>.GetAll("C:\\AdminFolder\\Products.json");
+        List<PayTypes> payTypes = Serializer<PayTypes>.GetAll("C:\\AdminFolder\\PayTypes.json");
 
-        string categoriesPath = "C:\\AdminFolder\\Categories.json";
-        string productsPath = "C:\\AdminFolder\\Products.json";
-        string payTypesPath = "C:\\AdminFolder\\PayTypes.json";
         string excelFilePath = "C:\\AdminFolder\\Orders.xlsx";
         string ordersPath = "C:\\UserFolder\\Orders.json";
 
@@ -666,8 +664,6 @@ namespace FastFoodOnlineBot
                         break;
 
                     case "Products":
-                        categories = Serializer<Categories>.GetAll(categoriesPath);
-
                         var categoriesKeyboard = new List<KeyboardButton[]>();
                         if (categories.Count % 2 == 0)
                         {
@@ -726,8 +722,6 @@ namespace FastFoodOnlineBot
                         break;
 
                     case "Deliver":
-                        List<PayTypes> payTypes = Serializer<PayTypes>.GetAll(payTypesPath);
-
                         var paymentKeyboard = new List<KeyboardButton[]>();
                         foreach (var pt in payTypes)
                         {
@@ -782,18 +776,21 @@ namespace FastFoodOnlineBot
                                 UserOrders.Create(new UserOrders()
                                 {
                                     productName = product.productName,
-                                    amount = message.Text
+                                    amount = message.Text,
+                                    price = product.price
                                 });
 
                                 total += product.price * int.Parse(message.Text);
+
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: $"Great!");
+
                                 return;
                             }
                         }
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: $"Great!");
 
-                        break;
+                    return;
                 }
 
                 await SearchCategory(botClient, update, cancellationToken, message.Text!);
@@ -866,8 +863,6 @@ namespace FastFoodOnlineBot
             {
                 if (category == categories[c].categoryName)
                 {
-                    products = Serializer<Products>.GetAll(productsPath);
-
                     var productsKeyboard = new List<KeyboardButton[]>();
                     foreach (var p in products)
                     {

@@ -10,6 +10,7 @@ namespace FastFoodOnlineBot
     {
         public string productName { get; set; }
         public string amount { get; set; }
+        public int price { get; set; }
 
         private static readonly string path = "C:\\UserFolder\\UserOrders.json";
 
@@ -36,7 +37,7 @@ namespace FastFoodOnlineBot
                 List<UserOrders> userOrders = Serializer<UserOrders>.GetAll(path);
                 foreach (UserOrders uo in userOrders)
                 {
-                    stringBuilder.Append($"{uo.productName} {uo.amount}x\n");
+                    stringBuilder.Append($"{uo.productName} {uo.amount}x - {uo.price}\n");
                 }
                 return stringBuilder.ToString();
             }
