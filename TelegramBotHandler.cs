@@ -727,6 +727,7 @@ namespace FastFoodOnlineBot
                         {
                             paymentKeyboard.Add([pt.type]);
                         }
+                        paymentKeyboard.Add(["Basket"]);
 
                         ReplyKeyboardMarkup paymentKeyboardMarkup = new(paymentKeyboard) { ResizeKeyboard = true };
 
@@ -748,6 +749,7 @@ namespace FastFoodOnlineBot
                         break;
 
                     case "Clear Basket":
+                        total = 0;
                         UserOrders.DeleteAll();
 
                         await botClient.SendTextMessageAsync(
@@ -781,7 +783,7 @@ namespace FastFoodOnlineBot
                                     price = product.price
                                 });
 
-                                total += product.price * int.Parse(message.Text);
+                                total += (product.price * int.Parse(message.Text));
 
                                 await botClient.SendTextMessageAsync(
                                     chatId: chatId,
