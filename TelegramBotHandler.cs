@@ -37,6 +37,9 @@ namespace FastFoodOnlineBot
         bool adminPanel = false;
         bool userPanel = false;
 
+        List<Categories> categories;
+        List<Products> products;
+
         string categoriesPath = "C:\\AdminFolder\\Categories.json";
         string productsPath = "C:\\AdminFolder\\Products.json";
         string payTypesPath = "C:\\AdminFolder\\PayTypes.json";
@@ -658,7 +661,36 @@ namespace FastFoodOnlineBot
                         break;
 
                     case "Products":
+                        categories = Serializer<Categories>.GetAll(categoriesPath);
 
+                        var categoriesKeyboard = new List<KeyboardButton[]>();
+                        if (categories.Count % 2 == 0)
+                        {
+                            for (int i = 0; i < categories.Count; i += 2)
+                            {
+                                categoriesKeyboard.Add([categories[i].categoryName, categories[i + 1].categoryName,]);
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < categories.Count; i += 2)
+                            {
+                                if (i + 1 == categories.Count)
+                                {
+                                    categoriesKeyboard.Add([categories[i].categoryName]);
+                                    break;
+                                }
+                                categoriesKeyboard.Add([categories[i].categoryName, categories[i + 1].categoryName,]);
+                            }
+                        }
+
+                        ReplyKeyboardMarkup categoriesKeyboardMarkup = new(categoriesKeyboard) { ResizeKeyboard = true };
+
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            cancellationToken: cancellationToken,
+                            text: "Choose Category...",
+                            replyMarkup: categoriesKeyboardMarkup);
                         break;
 
                     case "Basket":
@@ -687,6 +719,29 @@ namespace FastFoodOnlineBot
                             replyMarkup: paymentKeyboardMarkup);
 
                         break;
+                }
+
+                for (int c = 0; c < categories.Count; c++)
+                {
+                    if (message.Text == categories[c].categoryName)
+                    {
+                        products = Serializer<Products>.GetAll(productsPath);
+
+                        var productsKeyboard = new List<KeyboardButton[]>();
+                        foreach (var p in products)
+                        {
+                            if (p.categoryName == categories[c].categoryName)
+                                productsKeyboard.Add([p.productName]);
+                        }
+
+                        ReplyKeyboardMarkup productsKeyboardMarkup = new(productsKeyboard) { ResizeKeyboard = true };
+
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            cancellationToken: cancellationToken,
+                            text: "Sure",
+                            replyMarkup: productsKeyboardMarkup);
+                    }
                 }
 
                 return;
