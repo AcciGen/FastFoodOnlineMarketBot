@@ -1,12 +1,13 @@
-﻿using OfficeOpenXml;
+﻿using iTextSharp.text;
+using iTextSharp.text.pdf;
+using OfficeOpenXml;
 using OfficeOpenXml.Style;
-using PdfSharp.Drawing;
-using PdfSharp.Pdf;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using Telegram.Bot;
@@ -38,6 +39,7 @@ namespace FastFoodOnlineBot
         int total = 0;
         string lastProduct = "";
         bool deletion = false;
+        bool getOrders = false;
 
         bool contact = false;
         bool receivedSms = false;
@@ -761,26 +763,19 @@ namespace FastFoodOnlineBot
                         break;
 
                     case "Get Orders":
-                        using (var document = new PdfDocument())
+                        List<UserOrders> userOrders = Serializer<UserOrders>.GetAll("C:\\UserFolder\\UserOrders.json");
+                        iTextSharp.text.Document pdf = new iTextSharp.text.Document();
+
+                        PdfWriter writer = PdfWriter.GetInstance(pdf, new FileStream(pdfFilePath, FileMode.Create));
+                        pdf.Open();
+                        foreach (var order in userOrders)
                         {
-                            var page = document.AddPage();
-                            var gfx = XGraphics.FromPdfPage(page);
-                            var font = new XFont("Times New Roman", 12);
-
-                            int yOffset = 40;
-                            List<UserOrders> userOrders = Serializer<UserOrders>.GetAll("C:\\UserFolder\\UserOrders.json");
-
-                            foreach (var order in userOrders)
-                            {
-                                gfx.DrawString($"Product: {order.productName} Type: {order.productType} Amount: {order.amount}x Price: {order.price}", font, XBrushes.Black,
-                                    new XRect(40, yOffset, page.Width, page.Height), XStringFormats.TopLeft);
-                                yOffset += 20;
-                            }
-                            gfx.DrawString($"Total: {total}", font, XBrushes.Black,
-                            new XRect(40, yOffset, page.Width, page.Height), XStringFormats.TopLeft);
-
-                            document.Save(pdfFilePath);
+                            pdf.Add(new Paragraph($"Product: {order.productName} Type: {order.productType} Amount: {order.amount} Price: {order.price}"));
                         }
+                        pdf.Add(new Paragraph($"Total: {total}"));
+                        pdf.Close();
+
+                        getOrders = true;
 
                         break;
 
@@ -814,6 +809,20 @@ namespace FastFoodOnlineBot
                                 return;
                             }
                         }
+
+                    if (getOrders)
+                    {
+                            await using Stream stream = System.IO.File.OpenRead(pdfFilePath);
+
+                            await botClient.SendDocumentAsync(
+                                chatId: update.Message.Chat.Id,
+                                document: InputFile.FromStream(stream: stream, fileName: $"Orders.pdf"),
+                                caption: "Your Orders"
+                                );
+                            stream.Dispose();
+
+                            System.IO.File.Delete(pdfFilePath);
+                    }
 
                     return;
                 }
