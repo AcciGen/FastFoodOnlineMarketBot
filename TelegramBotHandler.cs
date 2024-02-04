@@ -23,6 +23,7 @@ namespace FastFoodOnlineBot
         string authToken = "afb47832338a2e4306c8612861de1917";
         string admin = "+998900246136";
         string userPhoneNumber;
+        long chatId;
 
         string crud = "";
         string old = "";
@@ -74,7 +75,7 @@ namespace FastFoodOnlineBot
             if (update.Message is not { } message)
                 return;
 
-            long chatId = message.Chat.Id;
+            chatId = message.Chat.Id;
 
             #region //Phone Asker
             if (message.Text == "/start")
@@ -399,20 +400,7 @@ namespace FastFoodOnlineBot
                     case "Category":
                         crud = "C";
 
-                        ReplyKeyboardMarkup categoryKeyboard = new(new[]
-                        {
-                            new KeyboardButton[] { "Add", "Read" },
-                                [ "Update", "Delete", "Panel" ],
-                        })
-                        {
-                            ResizeKeyboard = true
-                        };
-
-                        await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            cancellationToken: cancellationToken,
-                            text: "Sure",
-                            replyMarkup: categoryKeyboard);
+                        await CRUDPanel(botClient, update, cancellationToken);
 
                         break;
 
@@ -686,6 +674,25 @@ namespace FastFoodOnlineBot
                 return;
             }
             #endregion
+        }
+
+        public async Task CRUDPanel(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        {
+            ReplyKeyboardMarkup categoryKeyboard = new(new[]
+            {
+                new KeyboardButton[] { "Add", "Read" },
+                    [ "Update", "Delete" ],
+                    [ "Panel" ]
+            })
+            {
+                ResizeKeyboard = true
+            };
+
+            await botClient.SendTextMessageAsync(
+                chatId: chatId,
+                cancellationToken: cancellationToken,
+                text: "Sure",
+                replyMarkup: categoryKeyboard);
         }
 
         public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
