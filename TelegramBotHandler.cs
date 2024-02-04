@@ -1,4 +1,7 @@
 ﻿using OfficeOpenXml;
+using OfficeOpenXml.Style;
+using PdfSharp.Drawing;
+using PdfSharp.Pdf;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -47,8 +50,7 @@ namespace FastFoodOnlineBot
         List<PayTypes> payTypes = Serializer<PayTypes>.GetAll("C:\\AdminFolder\\PayTypes.json");
 
         string excelFilePath = "C:\\AdminFolder\\Orders.xlsx";
-        string ordersPath = "C:\\UserFolder\\Orders.json";
-
+        string pdfFilePath = "C:\\UserFolder\\UserOrders.pdf";
         public TelegramBotHandler(string token)
         {
             Token = token;
@@ -759,6 +761,26 @@ namespace FastFoodOnlineBot
                         break;
 
                     case "Get Orders":
+                        using (var document = new PdfDocument())
+                        {
+                            var page = document.AddPage();
+                            var gfx = XGraphics.FromPdfPage(page);
+                            var font = new XFont("Times New Roman", 12);
+
+                            int yOffset = 40;
+                            List<UserOrders> userOrders = Serializer<UserOrders>.GetAll("C:\\UserFolder\\UserOrders.json");
+
+                            foreach (var order in userOrders)
+                            {
+                                gfx.DrawString($"Product: {order.productName} Type: {order.productType} Amount: {order.amount}x Price: {order.price}", font, XBrushes.Black,
+                                    new XRect(40, yOffset, page.Width, page.Height), XStringFormats.TopLeft);
+                                yOffset += 20;
+                            }
+                            gfx.DrawString($"Total: {total}", font, XBrushes.Black,
+                            new XRect(40, yOffset, page.Width, page.Height), XStringFormats.TopLeft);
+
+                            document.Save(pdfFilePath);
+                        }
 
                         break;
 
