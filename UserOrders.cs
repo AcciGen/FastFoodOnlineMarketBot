@@ -48,7 +48,7 @@ namespace FastFoodOnlineBot
             }
         }
 
-        public static void Delete(string delProduct)
+        public static int Delete(string delProduct)
         {
             try
             {
@@ -60,6 +60,7 @@ namespace FastFoodOnlineBot
                     userOrders.Remove(removableUserOrder);
                     Serializer<UserOrders>.Save(userOrders, path);
                 }
+                return int.Parse(removableUserOrder!.amount);
             }
             catch { }
         }

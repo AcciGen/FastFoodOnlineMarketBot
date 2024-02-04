@@ -802,7 +802,13 @@ namespace FastFoodOnlineBot
                     {
                         if (deletion)
                         {
-                            UserOrders.Delete(message.Text!);
+                            foreach (var p in products)
+                            {
+                                if (message.Text == p.productName)
+                                {
+                                    total -= product.price * UserOrders.Delete(message.Text!);
+                                }
+                            }
                             deletion = false;
 
                             await botClient.SendTextMessageAsync(
