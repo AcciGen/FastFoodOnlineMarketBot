@@ -28,12 +28,13 @@ namespace FastFoodOnlineBot
         public string Token { get; set; }
         string accountSid = "AC7bcc36021b3503cdd0f2e0cd579a3904";
         string authToken = "afb47832338a2e4306c8612861de1917";
-        string admin = "+998900246136";
+        string admin = "+99890024613";
         string userPhoneNumber;
         long chatId;
 
         string crud = "";
         string old = "";
+        string allOrders = "";
         short count = 0;
         bool statusChange = false;
 
@@ -465,6 +466,10 @@ namespace FastFoodOnlineBot
                         break;
 
                     case "All Orders":
+                        if (System.IO.File.Exists(excelFilePath))
+                        {
+                            System.IO.File.Delete(excelFilePath);
+                        }
                         using (var package = new ExcelPackage(excelFilePath))
                         {
                             var sheet = package.Workbook.Worksheets.Add("Orders");
@@ -488,6 +493,7 @@ namespace FastFoodOnlineBot
                         break;
 
                     case "All Users":
+                        getFile = true;
                         iTextSharp.text.Document pdf = new iTextSharp.text.Document();
 
                         PdfWriter writer = PdfWriter.GetInstance(pdf, new FileStream(pdfFilePath, FileMode.Create));
@@ -711,7 +717,6 @@ namespace FastFoodOnlineBot
                             cancellationToken: cancellationToken,
                             text: "Magic Main Menu🔮🪄",
                             replyMarkup: replyKeyboardMarkup);
-
                         break;
 
                     case "Products":
@@ -948,11 +953,12 @@ namespace FastFoodOnlineBot
                                 UserOrders.DeleteAll();
                                 total = 0;
                                 location = false;
+                                allOrders = UserOrders.Read();
 
                                 Users.Create(new Users()
                                 {
                                     phoneNumber = userPhoneNumber,
-                                    orders = UserOrders.Read(),
+                                    orders = allOrders,
                                     orderStatus = "Delivering"
                                 });
                                 return;
@@ -969,7 +975,7 @@ namespace FastFoodOnlineBot
                             Users.Create(new Users()
                             {
                                 phoneNumber = userPhoneNumber,
-                                orders = UserOrders.Read(),
+                                orders = allOrders,
                                 orderStatus = "Delivering"
                             });
                             return;
