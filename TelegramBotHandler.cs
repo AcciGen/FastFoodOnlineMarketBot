@@ -28,7 +28,7 @@ namespace FastFoodOnlineBot
         public string Token { get; set; }
         string accountSid = "AC7bcc36021b3503cdd0f2e0cd579a3904";
         string authToken = "afb47832338a2e4306c8612861de1917";
-        string admin = "+99890024613";
+        string admin = "+998900246136";
         string userPhoneNumber;
         long chatId;
 
@@ -49,6 +49,8 @@ namespace FastFoodOnlineBot
         bool adminPanel = false;
         bool userPanel = false;
 
+        List<Users> users = Serializer<Users>.GetAll("C:\\AdminFolder\\Users.json");
+        List<UserOrders> userOrders = Serializer<UserOrders>.GetAll("C:\\UserFolder\\UserOrders.json");
         List<Categories> categories = Serializer<Categories>.GetAll("C:\\AdminFolder\\Categories.json");
         List<Products> products = Serializer<Products>.GetAll("C:\\AdminFolder\\Products.json");
         List<PayTypes> payTypes = Serializer<PayTypes>.GetAll("C:\\AdminFolder\\PayTypes.json");
@@ -110,6 +112,7 @@ namespace FastFoodOnlineBot
                     location = false;
                     contact = false;
                     receivedSms = false;
+                    statusChange = false;
                     adminPanel = false;
                     userPanel = false;
                 }
@@ -462,32 +465,29 @@ namespace FastFoodOnlineBot
                         break;
 
                     case "All Orders":
-                        //using (var package = new ExcelPackage(excelFilePath))
-                        //{
-                        //    var sheet = package.Workbook.Worksheets.Add("Orders");
+                        using (var package = new ExcelPackage(excelFilePath))
+                        {
+                            var sheet = package.Workbook.Worksheets.Add("Orders");
 
-                        //    sheet.Cells["A1"].Value = "UserId";
-                        //    sheet.Cells["B1"].Value = "Product";
-                        //    sheet.Cells["C1"].Value = "Price";
+                            sheet.Cells["A1"].Value = "UserPhone";
+                            sheet.Cells["B1"].Value = "Orders";
+                            sheet.Cells["C1"].Value = "Order Status";
 
-                        //    List<OrderStatuses> orders = Serializer<OrderStatuses>.GetAll(ordersPath);
+                            int row = 2;
+                            foreach (var user in users)
+                            {
+                                sheet.Cells[row, 1].Value = user.phoneNumber;
+                                sheet.Cells[row, 2].Value = user.orders;
+                                sheet.Cells[row, 3].Value = user.orderStatus;
+                                row++;
+                            }
 
-                        //    int row = 2; // starting from row 2 to skip headers
-                        //    foreach (var order in orders)
-                        //    {
-                        //        sheet.Cells[row, 1].Value = order.UserId;
-                        //        sheet.Cells[row, 2].Value = order.Product;
-                        //        sheet.Cells[row, 3].Value = order.Product;
-                        //        row++;
-                        //    }
-
-                        //    package.Save();
-                        //}
+                            package.Save();
+                        }
 
                         break;
 
                     case "All Users":
-                        List<Users> users = Serializer<Users>.GetAll("C:\\AdminFolder\\Users.json");
                         iTextSharp.text.Document pdf = new iTextSharp.text.Document();
 
                         PdfWriter writer = PdfWriter.GetInstance(pdf, new FileStream(pdfFilePath, FileMode.Create));
@@ -497,7 +497,6 @@ namespace FastFoodOnlineBot
                             pdf.Add(new Paragraph($"Phone Number: {user.phoneNumber}\nOrder: {user.orders}\nOrder Status: {user.orderStatus}\n"));
                         }
                         pdf.Close();
-
 
                         break;
 
@@ -665,12 +664,14 @@ namespace FastFoodOnlineBot
                 if (statusChange)
                 {
                     Users.Update(message.Text!);
+                    statusChange = false;
 
                     await botClient.SendTextMessageAsync(
                         chatId: chatId,
                         text: "Order Status of that user was changed successfully!");
                     return;
                 }
+
                 else if (getFile)
                 {
                     await using Stream stream = System.IO.File.OpenRead(pdfFilePath);
@@ -798,7 +799,6 @@ namespace FastFoodOnlineBot
                         break;
 
                     case "Get Orders":
-                        List<UserOrders> userOrders = Serializer<UserOrders>.GetAll("C:\\UserFolder\\UserOrders.json");
                         iTextSharp.text.Document pdf = new iTextSharp.text.Document();
 
                         PdfWriter writer = PdfWriter.GetInstance(pdf, new FileStream(pdfFilePath, FileMode.Create));
