@@ -62,7 +62,7 @@ namespace FastFoodOnlineBot
                 }
                 return int.Parse(removableUserOrder!.amount);
             }
-            catch { }
+            catch { return 1; }
         }
 
         public static void DeleteAll()
