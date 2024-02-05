@@ -28,7 +28,7 @@ namespace FastFoodOnlineBot
         public string Token { get; set; }
         string accountSid = "AC7bcc36021b3503cdd0f2e0cd579a3904";
         string authToken = "afb47832338a2e4306c8612861de1917";
-        string admin = "+99890024613";
+        string admin = "+998900246136";
         string userPhoneNumber;
         long chatId;
 
@@ -464,8 +464,8 @@ namespace FastFoodOnlineBot
                             text: "Please enter phone number and new status of the user...\nExample: +998900246136 Delivered");
 
                         statusChange = true;
+                        return;
 
-                        break;
 
                     case "All Orders":
                         users = Serializer<Users>.GetAll("C:\\AdminFolder\\Users.json");
