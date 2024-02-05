@@ -28,7 +28,7 @@ namespace FastFoodOnlineBot
         public string Token { get; set; }
         string accountSid = "AC7bcc36021b3503cdd0f2e0cd579a3904";
         string authToken = "afb47832338a2e4306c8612861de1917";
-        string admin = "+998900246136";
+        string admin = "+99890024613";
         string userPhoneNumber;
         long chatId;
 
@@ -468,6 +468,7 @@ namespace FastFoodOnlineBot
                         break;
 
                     case "All Orders":
+                        users = Serializer<Users>.GetAll("C:\\AdminFolder\\Users.json");
                         using (var package = new ExcelPackage(excelFilePath))
                         {
                             var sheet = package.Workbook.Worksheets.Add("Orders");
@@ -493,7 +494,7 @@ namespace FastFoodOnlineBot
 
                     case "All Users":
                         iTextSharp.text.Document pdf = new iTextSharp.text.Document();
-
+                        users = Serializer<Users>.GetAll("C:\\AdminFolder\\Users.json");
                         PdfWriter writer = PdfWriter.GetInstance(pdf, new FileStream(pdfFilePath, FileMode.Create));
                         pdf.Open();
                         foreach (var user in users)
@@ -819,7 +820,7 @@ namespace FastFoodOnlineBot
 
                     case "Get Orders":
                         iTextSharp.text.Document pdf = new iTextSharp.text.Document();
-
+                        userOrders = Serializer<UserOrders>.GetAll("C:\\UserFolder\\UserOrders.json");
                         PdfWriter writer = PdfWriter.GetInstance(pdf, new FileStream(pdfFilePath, FileMode.Create));
                         pdf.Open();
                         foreach (var order in userOrders)
