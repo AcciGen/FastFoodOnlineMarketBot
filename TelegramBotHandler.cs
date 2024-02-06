@@ -146,12 +146,13 @@ namespace FastFoodOnlineBot
                 userPhoneNumber = message.Contact!.PhoneNumber;
 
                 //var smsOptions = new CreateMessageOptions(
-                //  new PhoneNumber(user));
+                //  new PhoneNumber(userPhoneNumber));
                 //smsOptions.From = new PhoneNumber("+12512201568");
                 //smsOptions.Body = "777";
 
                 //var sms = MessageResource.Create(smsOptions);
                 //Console.WriteLine(sms.Body);
+
                 await botClient.SendTextMessageAsync(
                     chatId: chatId,
                     text: "Please enter the code which was sent📨 to your number...");
@@ -468,7 +469,8 @@ namespace FastFoodOnlineBot
 
 
                     case "All Orders":
-                        users = Serializer<Users>.GetAll("C:\\AdminFolder\\Users.json");
+                        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
                         using (var package = new ExcelPackage(excelFilePath))
                         {
                             var sheet = package.Workbook.Worksheets.Add("Orders");
